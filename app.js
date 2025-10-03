@@ -9,9 +9,31 @@ function showMessage(title, body) {
     document.getElementById("messageModal").style.display = "flex";
 }
 
+/**
+ * Sets the loading state of the submit button
+ * @param {boolean} isLoading - Whether the button should show loading state
+ */
+function setLoadingState(isLoading) {
+    const submitBtn = document.getElementById("submitBtn");
+    const buttonText = document.getElementById("buttonText");
+    const buttonSpinner = document.getElementById("buttonSpinner");
+
+    if (isLoading) {
+        submitBtn.disabled = true;
+        submitBtn.classList.add("opacity-75", "cursor-not-allowed");
+        buttonText.textContent = "Validating...";
+        buttonSpinner.classList.remove("hidden");
+    } else {
+        submitBtn.disabled = false;
+        submitBtn.classList.remove("opacity-75", "cursor-not-allowed");
+        buttonText.textContent = "View Seat Map";
+        buttonSpinner.classList.add("hidden");
+    }
+}
+
 document
     .getElementById("seatViewForm")
-    .addEventListener("submit", function (event) {
+    .addEventListener("submit", async function (event) {
         event.preventDefault(); // Stop the form from performing its default submission
 
         // Base URL for the American Airlines seat view
@@ -51,22 +73,56 @@ document
             return;
         }
 
-        // 3. Construct the query string parameters
-        const params = new URLSearchParams({
-            flightNumber: flightNumber,
-            departureMonth: departureMonth,
-            departureDay: departureDay,
-            originAirport: originAirport,
-            destinationAirport: destinationAirport,
-        });
+        // 3. Validate the flight using the Flight Service
+        setLoadingState(true);
 
-        // 4. Combine base URL and parameters
-        const finalUrl = `${baseUrl}?${params.toString()}`;
+        try {
+            const validationResult = await window.FlightService.lookupFlight(
+                flightNumber,
+                originAirport,
+                destinationAirport,
+                parseInt(departureMonth, 10),
+                parseInt(departureDay, 10)
+            );
 
-        console.log("Redirecting to:", finalUrl);
+            setLoadingState(false);
 
-        // 5. Perform the redirection
-        window.location.href = finalUrl;
+            if (!validationResult.isValid) {
+                // Flight not found or invalid
+                showMessage("Flight Validation Failed", validationResult.message);
+                return;
+            }
+
+            // Flight is valid - show success message briefly, then redirect
+            showMessage("Flight Found!", validationResult.message);
+
+            // Wait a moment for user to see the success message, then redirect
+            setTimeout(() => {
+                // 4. Construct the query string parameters
+                const params = new URLSearchParams({
+                    flightNumber: flightNumber,
+                    departureMonth: departureMonth,
+                    departureDay: departureDay,
+                    originAirport: originAirport,
+                    destinationAirport: destinationAirport,
+                });
+
+                // 5. Combine base URL and parameters
+                const finalUrl = `${baseUrl}?${params.toString()}`;
+
+                console.log("Redirecting to:", finalUrl);
+
+                // 6. Perform the redirection
+                window.location.href = finalUrl;
+            }, 1500);
+        } catch (error) {
+            setLoadingState(false);
+            showMessage(
+                "Validation Error",
+                "An error occurred while validating the flight. Please try again."
+            );
+            console.error("Flight validation error:", error);
+        }
     });
 
 // Set the airport code inputs to automatically uppercase as the user types

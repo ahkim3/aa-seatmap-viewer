@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>AA Seat View Redirector</title>
+        <!-- Load Tailwind CSS -->
+        <script src="https://cdn.tailwindcss.com"></script>
+        <!-- Configure Tailwind for Inter font and custom colors -->
+        <script>
+            tailwind.config = {
+                theme: {
+                    extend: {
+                        fontFamily: {
+                            sans: ["Inter", "sans-serif"],
+                        },
+                        colors: {
+                            "aa-blue": "#3A79AF",
+                            "aa-dark": "#2C3E50",
+                            "aa-light": "#F4F7F9",
+                        },
+                    },
+                },
+            };
+        </script>
+        <!-- Load Inter font -->
+        <link
+            href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
+            rel="stylesheet"
+        />
+        <link rel="stylesheet" href="style.css" />
+    </head>
+    <body
+        class="bg-aa-light min-h-screen flex items-center justify-center p-4 font-sans"
+    >
+        <!-- Main Container -->
+        <div
+            class="w-full max-w-lg bg-white p-8 md:p-10 rounded-xl shadow-2xl border-t-4 border-aa-blue"
+        >
+            <header class="mb-8 text-center">
+                <h1 class="text-3xl font-extrabold text-aa-dark mb-2">
+                    AA Flight Seat Map Finder
+                </h1>
+                <p class="text-gray-500">
+                    Enter flight details to view an American Airlines seat map.
+                </p>
+            </header>
+
+            <!-- Flight Detail Form -->
+            <form id="seatViewForm" class="space-y-6">
+                <!-- Flight Number -->
+                <div>
+                    <label
+                        for="flightNumber"
+                        class="block text-sm font-medium text-gray-700 mb-1"
+                        >AA Flight Number (e.g., 4416)</label
+                    >
+                    <input
+                        type="number"
+                        id="flightNumber"
+                        name="flightNumber"
+                        required
+                        placeholder="4416"
+                        class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-aa-blue text-lg"
+                    />
+                </div>
+
+                <!-- Date Inputs (Month and Day) -->
+                <div class="flex space-x-4">
+                    <div class="w-1/2">
+                        <label
+                            for="departureMonth"
+                            class="block text-sm font-medium text-gray-700 mb-1"
+                            >Departure Month (1-12)</label
+                        >
+                        <input
+                            type="number"
+                            id="departureMonth"
+                            name="departureMonth"
+                            required
+                            min="1"
+                            max="12"
+                            placeholder="4"
+                            class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-aa-blue text-lg"
+                        />
+                    </div>
+                    <div class="w-1/2">
+                        <label
+                            for="departureDay"
+                            class="block text-sm font-medium text-gray-700 mb-1"
+                            >Departure Day (1-31)</label
+                        >
+                        <input
+                            type="number"
+                            id="departureDay"
+                            name="departureDay"
+                            required
+                            min="1"
+                            max="31"
+                            placeholder="18"
+                            class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-aa-blue text-lg"
+                        />
+                    </div>
+                </div>
+
+                <!-- Origin & Destination -->
+                <div class="flex space-x-4">
+                    <div class="w-1/2">
+                        <label
+                            for="originAirport"
+                            class="block text-sm font-medium text-gray-700 mb-1"
+                            >Origin Airport (3-Letter Code)</label
+                        >
+                        <input
+                            type="text"
+                            id="originAirport"
+                            name="originAirport"
+                            required
+                            minlength="3"
+                            maxlength="3"
+                            placeholder="JFK"
+                            class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-aa-blue uppercase text-lg"
+                        />
+                    </div>
+                    <div class="w-1/2">
+                        <label
+                            for="destinationAirport"
+                            class="block text-sm font-medium text-gray-700 mb-1"
+                            >Destination Airport (3-Letter Code)</label
+                        >
+                        <input
+                            type="text"
+                            id="destinationAirport"
+                            name="destinationAirport"
+                            required
+                            minlength="3"
+                            maxlength="3"
+                            placeholder="ORD"
+                            class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-aa-blue uppercase text-lg"
+                        />
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <button
+                    type="submit"
+                    class="submit-button w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-md text-lg font-semibold text-white bg-aa-blue hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-aa-blue"
+                >
+                    View Seat Map
+                </button>
+            </form>
+        </div>
+
+        <!-- Simple Message Box (Modal) -->
+        <div id="messageModal" class="modal">
+            <div class="modal-content">
+                <h3 class="text-xl font-bold text-aa-dark mb-3" id="modalTitle">
+                    Error
+                </h3>
+                <p id="modalBody" class="text-gray-700 mb-4">
+                    An unknown error occurred.
+                </p>
+                <button
+                    onclick="document.getElementById('messageModal').style.display='none';"
+                    class="w-full py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
+                >
+                    Close
+                </button>
+            </div>
+        </div>
+        <script src="app.js"></script>
+    </body>
+</html>

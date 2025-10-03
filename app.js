@@ -1,3 +1,16 @@
+// Swap button logic for airport codes
+document
+    .getElementById("swapAirportsBtn")
+    .addEventListener("click", function () {
+        const originInput = document.getElementById("originAirport");
+        const destInput = document.getElementById("destinationAirport");
+        const temp = originInput.value;
+        originInput.value = destInput.value;
+        destInput.value = temp;
+        // Update names
+        showAirportName("originAirport", "originAirportName");
+        showAirportName("destinationAirport", "destinationAirportName");
+    });
 /**
  * Utility function to display a custom error message using the modal.
  * @param {string} title - The title of the message.
@@ -51,7 +64,19 @@ document
             return;
         }
 
-        // 3. Construct the query string parameters
+        // 3. Validate airport codes (must be real IATA codes)
+        if (
+            !window.isValidAirportCode(originAirport) ||
+            !window.isValidAirportCode(destinationAirport)
+        ) {
+            showMessage(
+                "Invalid Airport Code",
+                "Airport codes must be real IATA 3-letter codes. Please check your entries."
+            );
+            return;
+        }
+
+        // 4. Construct the query string parameters
         const params = new URLSearchParams({
             flightNumber: flightNumber,
             departureMonth: departureMonth,
@@ -60,21 +85,41 @@ document
             destinationAirport: destinationAirport,
         });
 
-        // 4. Combine base URL and parameters
+        // 5. Combine base URL and parameters
         const finalUrl = `${baseUrl}?${params.toString()}`;
 
         console.log("Redirecting to:", finalUrl);
 
-        // 5. Perform the redirection
+        // 6. Perform the redirection
         window.location.href = finalUrl;
     });
 
-// Set the airport code inputs to automatically uppercase as the user types
+// --- Airport name display logic using iata-codes.js ---
+function showAirportName(inputId, displayId) {
+    const code = document.getElementById(inputId).value.trim().toUpperCase();
+    const el = document.getElementById(displayId);
+    if (!code || code.length !== 3) {
+        el.textContent = "";
+        return;
+    }
+    window.loadIataCodes().then(() => {
+        el.textContent = window.getAirportName(code);
+    });
+}
+
 document.getElementById("originAirport").addEventListener("input", function () {
     this.value = this.value.toUpperCase();
+    showAirportName("originAirport", "originAirportName");
 });
 document
     .getElementById("destinationAirport")
     .addEventListener("input", function () {
         this.value = this.value.toUpperCase();
+        showAirportName("destinationAirport", "destinationAirportName");
     });
+
+// Show names on page load if values are prefilled
+window.addEventListener("DOMContentLoaded", function () {
+    showAirportName("originAirport", "originAirportName");
+    showAirportName("destinationAirport", "destinationAirportName");
+});
